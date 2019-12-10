@@ -1,0 +1,135 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "list.h"
+#include "stack.h"
+#include "queue.h"
+
+
+
+
+
+
+struct node
+{
+    int info;
+    struct node *next;
+} node;
+typedef struct
+{
+    int n,m; // n=noduri, m=arce
+    int **A; // matrice de adiacente
+} Graph;
+Graph *g=NULL;
+
+struct node *top = NULL;
+
+int isEmpty()
+{
+    return (top == NULL);
+}
+int isConnected(int x, int y)
+{
+    return (g->A[x-1][y-1] == 1);
+}
+void addEdge(int x, int y)
+{
+    g->A[x-1][y-1] = g->A[y-1][x-1] = 1;
+}
+
+void push(int data)
+{
+    struct node *p;
+    if((p=(struct node*)malloc(sizeof(node)))==NULL)
+    {
+        printf("Memory Exhausted");
+        exit(0);
+    }
+    p = (struct node*)malloc(sizeof(node));
+    p->info = data;
+    p->next = NULL;
+    if(top!=NULL)
+    {
+        p->next = top;
+    }
+    top = p;
+}
+int pop()
+{
+    struct node *temp;
+    int value;
+    if(top==NULL)
+    {
+        printf("\nThe stack is Empty");
+    }
+    else
+    {
+        temp = top;
+        top = top->next;
+        value = temp->info;
+        free (temp);
+    }
+    return value;
+}
+
+void DFS(int x, int required)
+{
+    int *visited = (int *)malloc((g->n+1)*sizeof(int));
+    int i;
+    for(i = 0; i <= g->n; i++)
+        visited[i] = 0;
+    push(x);
+    visited[x] = 1;
+    if(x == required)
+        return;
+    printf("Depth first Search starting from vertex ");
+    printf("%d : ", x);;
+    while(!isEmpty())
+    {
+        int k = pop();
+        if(k == required)
+            break;
+        printf("%d ",k);
+        for (i = g->n; i >= 0 ; --i)
+            if (isConnected(k, i) && !visited[i])
+            {
+                push(i);
+                visited[i] = 1;
+            }
+    }
+    free(visited);
+}
+
+int main()
+{
+    int i,j;
+    g = (Graph*) malloc(sizeof(Graph));
+    g->n = 12;
+    g->m = 0;
+    g->A = (int **)malloc((g->n)*sizeof(int*));
+    for (i = 0; i < g->n; ++i)
+        g->A[i] = (int*)malloc(g->n*sizeof(int));
+    for (i = 0; i < g->n; ++i)
+        for (j = 0; j < g->n; ++j)
+            g->A[i][j] = 0;
+
+
+   addEdge( 37, 14);
+addEdge(12, 45);
+addEdge(45, 29);
+addEdge(45, 17);
+addEdge(51, 45);
+addEdge(37, 51);
+addEdge(51, 17);
+addEdge(14, 51);
+addEdge(28, 14);
+addEdge(37, 12);
+addEdge(29, 28);
+addEdge(17, 28);
+    DFS(1, 13);
+    for (i = 0; i < g->n; ++i)
+        free(g->A[i]);
+    free(g->A);
+    printf("\nready!\n");
+    return 0;
+}
